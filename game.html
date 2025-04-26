@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mobile on Your Head Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f0f8ff;
+    }
+    .word {
+      font-size: 48px;
+      margin: 30px 0;
+      font-weight: bold;
+    }
+    .button {
+      font-size: 24px;
+      padding: 15px 30px;
+      margin: 10px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+    }
+    .correct-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .mistake-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    .timer {
+      font-size: 32px;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    #result {
+      font-size: 36px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Mobile on Your Head</h1>
+  <div class="timer" id="timer">Time Left: 30</div>
+  <div class="word" id="word">Press Start to Begin</div>
+
+  <button class="button" onclick="startGame()">Start Game</button>
+  <br>
+  <button class="button correct-btn" onclick="correct()" id="correctBtn" style="display:none;">Correct</button>
+  <button class="button mistake-btn" onclick="mistake()" id="mistakeBtn" style="display:none;">Mistake</button>
+
+  <div id="result"></div>
+
+  <!-- أصوات -->
+  <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_f4e31f7d7b.mp3?filename=correct-2-46134.mp3"></audio>
+  <audio id="mistakeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9a1d83df8b.mp3?filename=wrong-2-46126.mp3"></audio>
+  <audio id="backgroundSound" src="https://cdn.pixabay.com/download/audio/2023/03/07/audio_78a6427d8a.mp3?filename=timer-ticking-145009.mp3" loop autoplay></audio>
+
+  <script>
+    let words = [
+      "hospital", "factory", "swimming pool", "sports centre",
+      "market", "zoo", "library", "park"
+    ];
+    let currentIndex = 0;
+    let correctCount = 0;
+    let mistakeCount = 0;
+    let timeLeft = 30;
+    let timerInterval;
+
+    // رفع صوت الخلفية عند بداية الصفحة
+    window.onload = function() {
+      const backgroundSound = document.getElementById('backgroundSound');
+      backgroundSound.volume = 1.0; // أقصى مستوى للصوت
+      backgroundSound.play().catch(function(e){
+        console.log('الصوت يحتاج تفاعل المستخدم الأول (اضغط على أي زر)');
+      });
+    };
+
+    function startGame() {
+      currentIndex = 0;
+      correctCount = 0;
+      mistakeCount = 0;
+      timeLeft = 30;
+      document.getElementById('result').innerText = '';
+      document.getElementById('correctBtn').style.display = 'inline-block';
+      document.getElementById('mistakeBtn').style.display = 'inline-block';
+      document.getElementById('word').innerText = words[currentIndex];
+      document.getElementById('word').style.color = "black";
+      document.getElementById('timer').innerText = "Time Left: 30";
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = "Time Left: " + timeLeft;
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function correct() {
+      correctCount++;
+      document.getElementById('word').innerText = "Correct!";
+      document.getElementById('word').style.color = "green";
+      document.getElementById('correctSound').play();
+      setTimeout(nextWord, 600);
+    }
+
+    function mistake() {
+      mistakeCount++;
+      document.getElementById('word').innerText = "Mistake!";
+      document.getElementById('word').style.color = "red";
+      document.getElementById('mistakeSound').play();
+      setTimeout(nextWord, 600);
+    }
+
+    function nextWord() {
+      currentIndex++;
+      if (currentIndex < words.length) {
+        document.getElementById('word').innerText = words[currentIndex];
+        document.getElementById('word').style.color = "black";
+      } else {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      document.getElementById('backgroundSound').pause();
+      document.getElementById('backgroundSound').currentTime = 0;
+      document.getElementById('correctBtn').style.display = 'none';
+      document.getElementById('mistakeBtn').style.display = 'none';
+      document.getElementById('word').innerText = '';
+      document.getElementById('result').innerText = 
+        "Game Over!\nCorrect: " + correctCount + " | Mistakes: " + mistakeCount;
+    }
+  </script>
+
+</body>
+</html>
